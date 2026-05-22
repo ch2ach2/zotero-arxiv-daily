@@ -57,13 +57,18 @@ class Paper:
         return tldr
     
     def generate_tldr(self, openai_client:OpenAI,llm_params:dict) -> str:
+        if openai_client is None:
+            tldr = self.abstract or "No abstract available."
+            self.tldr = tldr
+            return tldr
+    
         try:
             tldr = self._generate_tldr_with_llm(openai_client,llm_params)
             self.tldr = tldr
             return tldr
         except Exception as e:
             logger.warning(f"Failed to generate tldr of {self.url}: {e}")
-            tldr = self.abstract
+            tldr = self.abstract or "No abstract available."
             self.tldr = tldr
             return tldr
 
@@ -95,6 +100,10 @@ class Paper:
             return affiliations
     
     def generate_affiliations(self, openai_client:OpenAI,llm_params:dict) -> Optional[list[str]]:
+        if openai_client is None:
+            self.affiliations = None
+            return None
+    
         try:
             affiliations = self._generate_affiliations_with_llm(openai_client,llm_params)
             self.affiliations = affiliations
